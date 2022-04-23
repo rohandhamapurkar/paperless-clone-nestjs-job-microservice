@@ -1,15 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
-type FabricObjectPosition = {
+class FabricObjectPosition {
   angle: number;
   scaleX: number;
   scaleY: number;
   left: number;
   top: number;
-};
+}
 
-type FabricObjectStyle = {
+class FabricObjectStyle {
   color: string;
   fontFamily: string;
   fontSize: string;
@@ -17,16 +17,16 @@ type FabricObjectStyle = {
   fontWeight: string;
   horizontalAlignment: string;
   underline: boolean;
-};
+}
 
-type FabricImageAttribute = {
+class FabricImageAttribute {
   angle: number;
   opacity: number;
   scaleX: number;
   scaleY: number;
-};
+}
 
-type DataConfigType = {
+export class DataConfigType {
   type: string;
   datasetId?: string;
   dataField?: string;
@@ -35,7 +35,8 @@ type DataConfigType = {
   position: FabricObjectPosition;
   style?: FabricObjectStyle;
   text?: string;
-}[];
+}
+[];
 
 @Schema()
 export class Job {

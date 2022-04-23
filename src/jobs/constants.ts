@@ -1,7 +1,7 @@
 export const TEMPLATES_COLLECTION_NAME = 'templates';
 export const USERS_COLLECTION_NAME = 'users';
-export enum JOB_QUEUE_MESSAGE_PATTERNS {
-  CREATE_JOB = 'create_job',
-  GET_JOB = 'get_job',
-  GET_JOB_CHANGELOG = 'get_job_changelog',
+export enum JOB_SERVICE_MESSAGE_PATTERNS {
+  CREATE_JOB = 'CREATE_JOB',
+  GET_JOB = 'GET_JOB',
+  GET_JOB_CHANGELOG = 'GET_JOB_CHANGELOG',
 }
