@@ -1,4 +1,4 @@
-import { Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
 export enum JOB_STATUS {
@@ -12,11 +12,15 @@ export enum JOB_STATUS {
 
 @Schema()
 export class JobChangelog {
+  @Prop({ required: true })
   userId: mongoose.Types.ObjectId;
+  @Prop({ required: true })
   jobId: mongoose.Types.ObjectId;
+  @Prop({ required: true })
   status: JOB_STATUS;
+  @Prop({ required: true })
   message: string;
-  //   consumerId: string;
+  @Prop({ required: true })
   createdOn: Date;
 }
 

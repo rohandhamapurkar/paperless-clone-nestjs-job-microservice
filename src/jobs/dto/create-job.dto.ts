@@ -9,6 +9,10 @@ export class CreateJobDto {
   @IsDefined()
   userId: string;
 
+  @IsString()
+  @IsDefined()
+  uuid: string;
+
   @IsDefined()
   @Type(() => DataConfigType)
   dataConfig: DataConfigType;

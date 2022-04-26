@@ -43,6 +43,8 @@ export class Job {
   @Prop({ required: true })
   userId: mongoose.Types.ObjectId;
   @Prop({ required: true })
+  uuid: string;
+  @Prop({ required: true })
   retryCount: number;
   @Prop({ required: true })
   createdOn: Date;
@@ -52,4 +54,6 @@ export class Job {
   templateId: mongoose.Types.ObjectId;
 }
 
-export const JobSchema = SchemaFactory.createForClass(Job);
+const JobSchema = SchemaFactory.createForClass(Job);
+JobSchema.index({ _id: 1, uuid: 1 }, { unique: true });
+export { JobSchema };
