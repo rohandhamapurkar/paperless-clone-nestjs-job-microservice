@@ -2,10 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
 export enum JOB_STATUS {
-  PUSHED_TO_QUEUE = 'PUSHED_TO_QUEUE',
   IN_QUEUE = 'IN_QUEUE',
+  ASSERTING_JOB = 'ASSERTING_JOB',
   PROCESSING_FILES = 'PROCESSING_FILES',
-  DELETING_TEMP_FILES = 'DELETING_TEMP_FILES',
   ERROR = 'ERROR',
   SUCCESS = 'SUCCESS',
 }

@@ -9,6 +9,8 @@ import {
 import { JOB_RETRY_LIMIT, JOB_SERVICE_MESSAGE_PATTERNS } from './constants';
 import { CreateJobDto } from './dto/create-job.dto';
 import { JobsService } from './jobs.service';
+const logger = new Logger('JobsController');
+
 @UsePipes(new ValidationPipe())
 @Controller('jobs')
 export class JobsController {
@@ -21,15 +23,17 @@ export class JobsController {
   ) {
     const message = context.getMessage();
     const channel = context.getChannelRef();
-
+    const job = await this.jobService.assertJob(data);
     try {
-      const job = await this.jobService.assertJob(data);
-      if (job.retryCount > JOB_RETRY_LIMIT) {
-        Logger.error('****Job failed mulitiple times, aborting the job.****');
+      if (job.retryCount >= JOB_RETRY_LIMIT) {
+        logger.error('Job failed mulitiple times, aborting the job.');
         return channel.reject(message, false);
       }
+      await this.jobService.processJob(job);
+      channel.ack(message);
+      logger.log('Job done');
     } catch (err) {
-      Logger.error(err);
+      logger.error(err);
       channel.nack(message, false);
     }
   }

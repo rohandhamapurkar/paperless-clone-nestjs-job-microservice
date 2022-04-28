@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { DATA_CONFIG_TYPES } from '../constants';
 
 class FabricObjectPosition {
   angle: number;
@@ -12,8 +13,8 @@ class FabricObjectPosition {
 class FabricObjectStyle {
   color: string;
   fontFamily: string;
-  fontSize: string;
-  fontStyle: string;
+  fontSize: number;
+  fontStyle: '' | 'normal' | 'italic' | 'oblique';
   fontWeight: string;
   horizontalAlignment: string;
   underline: boolean;
@@ -27,16 +28,16 @@ class FabricImageAttribute {
 }
 
 export class DataConfigType {
-  type: string;
+  type: DATA_CONFIG_TYPES;
   datasetId?: string;
   dataField?: string;
   url?: string;
+  scale?: number;
   attributes?: FabricImageAttribute;
   position: FabricObjectPosition;
   style?: FabricObjectStyle;
   text?: string;
 }
-[];
 
 @Schema()
 export class Job {
@@ -49,11 +50,15 @@ export class Job {
   @Prop({ required: true })
   createdOn: Date;
   @Prop({ required: true })
-  dataConfig: DataConfigType;
+  dataConfig: DataConfigType[];
   @Prop({ required: true })
   templateId: mongoose.Types.ObjectId;
+  @Prop()
+  outputFileLink: string;
+  @Prop()
+  outputFileId: string;
 }
 
 const JobSchema = SchemaFactory.createForClass(Job);
-JobSchema.index({ _id: 1, uuid: 1 }, { unique: true });
+JobSchema.index({ uuid: 1 }, { unique: true });
 export { JobSchema };
