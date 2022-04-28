@@ -12,7 +12,7 @@ import { ArchiveHelperService } from './archive-helper.service';
 import { DATA_CONFIG_TYPES, TEMPLATES_COLLECTION_NAME } from './constants';
 import { CreateJobDto } from './dto/create-job.dto';
 import { JobChangelog, JOB_STATUS } from './entities/job-changelog.entity';
-import { Job } from './entities/job.entity';
+import { DataConfigType, Job } from './entities/job.entity';
 import { ImageProcessorService } from './image-processor.service';
 const logger = new Logger('JobsService');
 
@@ -100,6 +100,68 @@ export class JobsService {
     return this.jobRepository.updateOne({ _id: job._id }, updateObj);
   }
 
+  parseConfig(dataConfig: DataConfigType[]): {
+    staticConfig: DataConfigType[];
+    dynamicConfig: DataConfigType[];
+  } {
+    const staticConfig = dataConfig.filter(
+      (elem) =>
+        elem.type === DATA_CONFIG_TYPES.STATIC_TEXT ||
+        elem.type === DATA_CONFIG_TYPES.IMAGE,
+    );
+    const dynamicConfig = dataConfig.filter(
+      (elem) => elem.type === DATA_CONFIG_TYPES.FROM_DATASET,
+    );
+    return { staticConfig, dynamicConfig };
+  }
+
+  async executeDynamicConfig({
+    dynamicConfig,
+    intermediateOutputImage,
+    canvas,
+    tempFolderPath,
+  }: {
+    dynamicConfig: DataConfigType[];
+    intermediateOutputImage: string;
+    canvas: fabric.StaticCanvas;
+    tempFolderPath: string;
+  }) {
+    for (const config of dynamicConfig) {
+      switch (config.type) {
+        case DATA_CONFIG_TYPES.FROM_DATASET: {
+          try {
+            const datasetCursor = await this.datasetsDbConnection
+              .collection(config.datasetId)
+              .find();
+
+            const templateImage = await this.imageProcessorService.readImage({
+              url: 'file://' + intermediateOutputImage,
+            });
+            logger.debug(templateImage);
+
+            unlinkSync(intermediateOutputImage);
+            while (await datasetCursor.hasNext()) {
+              const row = await datasetCursor.next();
+              logger.debug(row);
+              const result = await this.imageProcessorService.addFromDataset({
+                canvas,
+                templateImage,
+                datasetObj: row,
+                config,
+                outputFolderPath: tempFolderPath,
+              });
+              if (!result) throw new Error('addFromDataset error');
+            }
+            await datasetCursor.close();
+          } catch (err) {
+            logger.error(err);
+            throw new Error('Could not add from dynamic config');
+          }
+        }
+      }
+    }
+  }
+
   async processJob(
     job: mongoose.Document<unknown, any, Job> &
       Job & { _id: mongoose.Types.ObjectId },
@@ -121,14 +183,7 @@ export class JobsService {
         .findOne({ _id: job.templateId });
       const templateUrl: string = template.imageUrl;
 
-      const staticConfig = job.dataConfig.filter(
-        (elem) =>
-          elem.type === DATA_CONFIG_TYPES.STATIC_TEXT ||
-          elem.type === DATA_CONFIG_TYPES.IMAGE,
-      );
-      const dynamicConfig = job.dataConfig.filter(
-        (elem) => elem.type === DATA_CONFIG_TYPES.FROM_DATASET,
-      );
+      const { staticConfig, dynamicConfig } = this.parseConfig(job.dataConfig);
 
       const canvas = await this.imageProcessorService.addTemplateImage(
         templateUrl,
@@ -154,42 +209,12 @@ export class JobsService {
         throw new Error("Couldn't write staticImage output");
       }
       if (dynamicConfig.length) {
-        for (const config of dynamicConfig) {
-          switch (config.type) {
-            case DATA_CONFIG_TYPES.FROM_DATASET: {
-              try {
-                const datasetCursor = await this.datasetsDbConnection
-                  .collection(config.datasetId)
-                  .find();
-
-                const templateImage =
-                  await this.imageProcessorService.readImage({
-                    url: 'file://' + intermediateOutputImage,
-                  });
-                logger.debug(templateImage);
-
-                unlinkSync(intermediateOutputImage);
-                while (await datasetCursor.hasNext()) {
-                  const row = await datasetCursor.next();
-                  logger.debug(row);
-                  const result =
-                    await this.imageProcessorService.addFromDataset({
-                      canvas,
-                      templateImage,
-                      datasetObj: row,
-                      config,
-                      outputFolderPath: tempFolderPath,
-                    });
-                  if (!result) throw new Error('addFromDataset error');
-                }
-                await datasetCursor.close();
-              } catch (err) {
-                logger.error(err);
-                throw new Error('Could not add from dynamic config');
-              }
-            }
-          }
-        }
+        await this.executeDynamicConfig({
+          dynamicConfig,
+          canvas,
+          intermediateOutputImage,
+          tempFolderPath,
+        });
       }
 
       const outputZipFileStream = await this.archiveService.archiveFolder({
