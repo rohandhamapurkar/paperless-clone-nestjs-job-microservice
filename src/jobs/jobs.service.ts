@@ -166,11 +166,17 @@ export class JobsService {
     job: mongoose.Document<unknown, any, Job> &
       Job & { _id: mongoose.Types.ObjectId },
   ) {
+    // temp variables
     const tempFolder = v4();
     const tempFolderPath = `./tmp/${tempFolder}`;
+    const tempImageFile = `${v4()}.png`;
+    const intermediateOutputImage = tempFolderPath + '/' + tempImageFile;
+
+    // assertions
     !existsSync('./tmp') && mkdirSync('./tmp');
     mkdirSync(tempFolderPath);
     try {
+      // record job processing start
       await this.recordJobChangelog({
         userId: job.userId,
         jobId: job._id,
@@ -178,17 +184,21 @@ export class JobsService {
         message: 'Started Job Processing',
       });
 
+      // get template url
       const template = await this.paperlessDbConnection
         .collection(TEMPLATES_COLLECTION_NAME)
         .findOne({ _id: job.templateId });
       const templateUrl: string = template.imageUrl;
 
+      // parse data config from UI
       const { staticConfig, dynamicConfig } = this.parseConfig(job.dataConfig);
 
+      // get canvas with template image
       const canvas = await this.imageProcessorService.addTemplateImage(
         templateUrl,
       );
 
+      // add static fabric objects to canvas
       const result0 = await this.imageProcessorService.addStaticObjects({
         canvas,
         staticConfig,
@@ -197,10 +207,7 @@ export class JobsService {
         throw new Error("Couldn't add static objects");
       }
 
-      const tempImageFile = `${v4()}.png`;
-
-      const intermediateOutputImage = tempFolderPath + '/' + tempImageFile;
-
+      // write to intermediate output png file after adding static objects
       const imageWriteRes = await this.imageProcessorService.imageWrite({
         path: intermediateOutputImage,
         canvas,
@@ -208,7 +215,10 @@ export class JobsService {
       if (!imageWriteRes) {
         throw new Error("Couldn't write staticImage output");
       }
+
+      // if dynamic config exists
       if (dynamicConfig.length) {
+        // add dynamic config objects to canvas with intermediate output png as template
         await this.executeDynamicConfig({
           dynamicConfig,
           canvas,
@@ -217,10 +227,12 @@ export class JobsService {
         });
       }
 
+      // archive the temp folder that has all the canvas exported images
       const outputZipFileStream = await this.archiveService.archiveFolder({
         folderPath: tempFolderPath,
       });
 
+      // archive the temp folder and upload to google drive
       let result1: { link: string; fileId: string };
       try {
         result1 = await this.googleService.uploadPublicFile({
@@ -233,10 +245,12 @@ export class JobsService {
         throw new Error('Google Service Error:' + err.message);
       }
 
+      // update job with zip file public link
       this.updateJob(job, {
         $set: { outputFileLink: result1.link, outputFileId: result1.fileId },
       });
 
+      // record job process finish
       await this.recordJobChangelog({
         userId: job.userId,
         jobId: job._id,
@@ -246,6 +260,7 @@ export class JobsService {
       logger.log('Job Completed');
     } catch (err) {
       logger.error(err);
+      // record job error
       await this.recordJobChangelog({
         userId: job.userId,
         jobId: job._id,
@@ -255,6 +270,7 @@ export class JobsService {
       await this.incJobRetry(job);
       throw err;
     } finally {
+      // finally async delete temp folder
       rm(tempFolderPath, { recursive: true, force: true }, function (err) {
         if (err) logger.error('Temp folder could not be deleted', err);
       });
