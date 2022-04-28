@@ -152,7 +152,7 @@ export class ImageProcessorService {
 
         imageStream.on('end', function () {
           imageOut.end();
-          logger.log('Stream ended.');
+          logger.log('imageWrite Stream ended.');
           resolve(true);
         });
 

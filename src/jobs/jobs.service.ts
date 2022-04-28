@@ -192,30 +192,25 @@ export class JobsService {
         }
       }
 
-      // const outputZipFileStream = await this.archiveService.archiveFolder({
-      //   folderName: tempFolder,
-      //   folderPath: tempFolderPath,
-      // });
-      await this.archiveService.archiveFolder({
-        folderName: tempFolder,
+      const outputZipFileStream = await this.archiveService.archiveFolder({
         folderPath: tempFolderPath,
       });
 
-      // let result1: { link: string; fileId: string };
-      // try {
-      //   result1 = await this.googleService.uploadPublicFile({
-      //     filename: tempFolder + '.zip',
-      //     folderId: this.googleService.GDRIVE_OUTPUT_FOLDER_ID,
-      //     fileStream: outputZipFileStream,
-      //     mimeType: 'application/zip',
-      //   });
-      // } catch (err) {
-      //   throw new Error('Google Service Error:' + err.message);
-      // }
+      let result1: { link: string; fileId: string };
+      try {
+        result1 = await this.googleService.uploadPublicFile({
+          filename: tempFolder + '.zip',
+          folderId: this.googleService.GDRIVE_OUTPUT_FOLDER_ID,
+          fileStream: outputZipFileStream,
+          mimeType: 'application/zip',
+        });
+      } catch (err) {
+        throw new Error('Google Service Error:' + err.message);
+      }
 
-      // this.updateJob(job, {
-      //   $set: { outputFileLink: result1.link, outputFileId: result1.fileId },
-      // });
+      this.updateJob(job, {
+        $set: { outputFileLink: result1.link, outputFileId: result1.fileId },
+      });
 
       await this.recordJobChangelog({
         userId: job.userId,
