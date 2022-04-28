@@ -8,6 +8,8 @@ import {
 } from '@nestjs/microservices';
 import { JOB_RETRY_LIMIT, JOB_SERVICE_MESSAGE_PATTERNS } from './constants';
 import { CreateJobDto } from './dto/create-job.dto';
+import { GetJobsChangelogDto } from './dto/get-job-changelog.dto';
+import { GetJobsDto } from './dto/get-jobs.dto';
 import { JobsService } from './jobs.service';
 const logger = new Logger('JobsController');
 
@@ -38,8 +40,13 @@ export class JobsController {
     }
   }
 
-  @MessagePattern(JOB_SERVICE_MESSAGE_PATTERNS.GET_JOB, Transport.TCP)
-  async accumulate(data: number[]): Promise<number> {
-    return (data || []).reduce((a, b) => a + b);
+  @MessagePattern(JOB_SERVICE_MESSAGE_PATTERNS.GET_JOBS, Transport.TCP)
+  async getJobs(data: GetJobsDto) {
+    return await this.jobService.findAll(data);
+  }
+
+  @MessagePattern(JOB_SERVICE_MESSAGE_PATTERNS.GET_JOB_CHANGELOG, Transport.TCP)
+  async getJobChangelog(data: GetJobsChangelogDto) {
+    return await this.jobService.getChangelog(data);
   }
 }
