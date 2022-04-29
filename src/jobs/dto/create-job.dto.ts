@@ -1,10 +1,10 @@
 import { Type } from 'class-transformer';
 import { IsDefined, IsString } from 'class-validator';
-import { isObjectId } from '../decorators/isobjectid.decorator';
+import { IsObjectId } from '../decorators/isobjectid.decorator';
 import { DataConfigType } from '../entities/job.entity';
 
 export class CreateJobDto {
-  @isObjectId()
+  @IsObjectId()
   @IsString()
   @IsDefined()
   userId: string;
@@ -17,7 +17,7 @@ export class CreateJobDto {
   @Type(() => DataConfigType)
   dataConfig: DataConfigType;
 
-  @isObjectId()
+  @IsObjectId()
   @IsString()
   @IsDefined()
   templateId: string;

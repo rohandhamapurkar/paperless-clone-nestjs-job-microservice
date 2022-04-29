@@ -1,10 +1,10 @@
 import { registerDecorator } from 'class-validator';
 import mongoose from 'mongoose';
 
-export function isObjectId() {
+export function IsObjectId() {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'isObjectId',
+      name: 'IsObjectId',
       target: object.constructor,
       propertyName: propertyName,
       options: {

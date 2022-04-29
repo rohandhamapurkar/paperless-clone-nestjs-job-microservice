@@ -1,5 +1,5 @@
 import { IsNumber, IsString, IsDefined } from 'class-validator';
-import { isObjectId } from '../decorators/isobjectid.decorator';
+import { IsObjectId } from '../decorators/isobjectid.decorator';
 
 export class GetJobsDto {
   @IsNumber()
@@ -8,7 +8,7 @@ export class GetJobsDto {
   @IsNumber()
   limit: number;
 
-  @isObjectId()
+  @IsObjectId()
   @IsString()
   @IsDefined()
   userId: string;

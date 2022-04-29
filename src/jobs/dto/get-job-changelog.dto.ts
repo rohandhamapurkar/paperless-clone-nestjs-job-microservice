@@ -1,13 +1,13 @@
 import { IsString, IsDefined } from 'class-validator';
-import { isObjectId } from '../decorators/isobjectid.decorator';
+import { IsObjectId } from '../decorators/isobjectid.decorator';
 
 export class GetJobsChangelogDto {
-  @isObjectId()
+  @IsObjectId()
   @IsString()
   @IsDefined()
   jobId: string;
 
-  @isObjectId()
+  @IsObjectId()
   @IsString()
   @IsDefined()
   userId: string;
