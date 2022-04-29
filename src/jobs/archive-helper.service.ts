@@ -5,6 +5,9 @@ const logger = new Logger('ArchiveHelperService');
 
 @Injectable()
 export class ArchiveHelperService {
+  /**
+   * Returns zip data stream for input folder path
+   */
   async archiveFolder({
     folderPath,
   }: {

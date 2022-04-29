@@ -7,6 +7,9 @@ import { DataConfigType } from './entities/job.entity';
 const logger = new Logger('ImageProcessorService');
 @Injectable()
 export class ImageProcessorService {
+  /**
+   * Returns fabric.js Image instance from image url / file path
+   */
   readImage({
     url,
     setObj = false,
@@ -29,6 +32,9 @@ export class ImageProcessorService {
     });
   }
 
+  /**
+   * Returns fabric.js canvas instance for input template image url
+   */
   async addTemplateImage(templateUrl: string): Promise<fabric.StaticCanvas> {
     const canvas = new fabric.StaticCanvas(null);
     const image = await this.readImage({
@@ -41,6 +47,9 @@ export class ImageProcessorService {
     return canvas;
   }
 
+  /**
+   * Adds static fabric objects to canvas based on configuration
+   */
   async addStaticObjects({
     canvas,
     staticConfig,
@@ -81,6 +90,10 @@ export class ImageProcessorService {
     return true;
   }
 
+  /**
+   * Adds fabric objects to canvas generates the image
+   * for each dynamic dataset based input
+   */
   async addFromDataset({
     canvas,
     templateImage,
@@ -135,6 +148,9 @@ export class ImageProcessorService {
     }
   }
 
+  /**
+   * writes fabric canvas to png file
+   */
   async imageWrite({
     path,
     canvas,

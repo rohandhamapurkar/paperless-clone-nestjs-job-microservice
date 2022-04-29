@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  // microservice transport #1
+  // microservice RabbitMQ transport
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: {
@@ -17,7 +17,7 @@ async function bootstrap() {
     },
   });
 
-  // microservice transport #2
+  // microservice TCP transport
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
@@ -32,7 +32,7 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  app.listen(3001);
+  app.listen(configService.get<string>('PORT'));
   appContext.close();
 }
 bootstrap();

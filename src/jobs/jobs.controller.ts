@@ -18,11 +18,11 @@ const logger = new Logger('JobsController');
 export class JobsController {
   constructor(private readonly jobService: JobsService) {}
 
+  /**
+   * Service endpoint to process job
+   */
   @MessagePattern(JOB_SERVICE_MESSAGE_PATTERNS.CREATE_JOB, Transport.RMQ)
-  async getNotifications(
-    @Payload() data: CreateJobDto,
-    @Ctx() context: RmqContext,
-  ) {
+  async processJob(@Payload() data: CreateJobDto, @Ctx() context: RmqContext) {
     const message = context.getMessage();
     const channel = context.getChannelRef();
     const job = await this.jobService.assertJob(data);
@@ -40,11 +40,17 @@ export class JobsController {
     }
   }
 
+  /**
+   * Service endpoint to get all user jobs
+   */
   @MessagePattern(JOB_SERVICE_MESSAGE_PATTERNS.GET_JOBS, Transport.TCP)
   async getJobs(data: GetJobsDto) {
     return await this.jobService.findAll(data);
   }
 
+  /**
+   * Service endpoint to get changelog for a user job
+   */
   @MessagePattern(JOB_SERVICE_MESSAGE_PATTERNS.GET_JOB_CHANGELOG, Transport.TCP)
   async getJobChangelog(data: GetJobsChangelogDto) {
     return await this.jobService.getChangelog(data);

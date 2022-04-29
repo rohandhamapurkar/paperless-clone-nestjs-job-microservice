@@ -39,6 +39,10 @@ export class DataConfigType {
   text?: string;
 }
 
+/**
+ * Job Schema is used for defining mongodb collection
+ * for storing job documents
+ */
 @Schema()
 export class Job {
   @Prop({ required: true })

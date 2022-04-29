@@ -36,6 +36,9 @@ export class JobsService {
     private readonly googleService: GoogleService,
   ) {}
 
+  /**
+   * Gets all jobs for a user from db
+   */
   async findAll({ pageNo = 0, limit = 10, userId }: GetJobsDto) {
     return this.jobRepository.find(
       { userId: new mongoose.Types.ObjectId(userId) },
@@ -44,6 +47,9 @@ export class JobsService {
     );
   }
 
+  /**
+   * Gets all changelog rows for a user job
+   */
   async getChangelog({ jobId, userId }: GetJobsChangelogDto) {
     return this.jobChangelogRepository.find(
       {
@@ -55,6 +61,9 @@ export class JobsService {
     );
   }
 
+  /**
+   * Asserts and returns the user job document in the jobs collection
+   */
   async assertJob(data: CreateJobDto) {
     try {
       const doc = new this.jobRepository({
@@ -82,6 +91,9 @@ export class JobsService {
     }
   }
 
+  /**
+   * Adds an document to the jobs changelog collection
+   */
   private recordJobChangelog({
     userId,
     jobId,
@@ -103,16 +115,19 @@ export class JobsService {
     return doc.save();
   }
 
+  /**
+   * Increments the retry count property of the job
+   */
   private async incJobRetry(
     job: mongoose.Document<unknown, any, Job> &
       Job & { _id: mongoose.Types.ObjectId },
   ) {
-    await this.jobRepository.updateOne(
-      { _id: job._id },
-      { $inc: { retryCount: 1 } },
-    );
+    await this.updateJob(job, { $inc: { retryCount: 1 } });
   }
 
+  /**
+   * Updates the job document
+   */
   async updateJob(
     job: mongoose.Document<unknown, any, Job> &
       Job & { _id: mongoose.Types.ObjectId },
@@ -121,6 +136,9 @@ export class JobsService {
     return this.jobRepository.updateOne({ _id: job._id }, updateObj);
   }
 
+  /**
+   * Parses and divides the job dataconfig into static and dynamic
+   */
   parseConfig(dataConfig: DataConfigType[]): {
     staticConfig: DataConfigType[];
     dynamicConfig: DataConfigType[];
@@ -136,6 +154,9 @@ export class JobsService {
     return { staticConfig, dynamicConfig };
   }
 
+  /**
+   * Executes the dynamic job data config
+   */
   async executeDynamicConfig({
     dynamicConfig,
     intermediateOutputImage,
@@ -183,6 +204,9 @@ export class JobsService {
     }
   }
 
+  /**
+   * Processes the user job
+   */
   async processJob(
     job: mongoose.Document<unknown, any, Job> &
       Job & { _id: mongoose.Types.ObjectId },
@@ -267,7 +291,7 @@ export class JobsService {
       }
 
       // update job with zip file public link
-      this.updateJob(job, {
+      await this.updateJob(job, {
         $set: { outputFileLink: result1.link, outputFileId: result1.fileId },
       });
 

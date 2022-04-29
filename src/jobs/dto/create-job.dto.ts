@@ -3,6 +3,9 @@ import { IsDefined, IsString } from 'class-validator';
 import { IsObjectId } from '../decorators/isobjectid.decorator';
 import { DataConfigType } from '../entities/job.entity';
 
+/**
+ * Dto for job definition validation
+ */
 export class CreateJobDto {
   @IsObjectId()
   @IsString()

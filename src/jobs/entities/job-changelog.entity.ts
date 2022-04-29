@@ -9,6 +9,10 @@ export enum JOB_STATUS {
   SUCCESS = 'SUCCESS',
 }
 
+/**
+ * JobChangelog Schema is used for defining mongodb collection
+ * for storing job changelog documents
+ */
 @Schema()
 export class JobChangelog {
   @Prop({ required: true })
