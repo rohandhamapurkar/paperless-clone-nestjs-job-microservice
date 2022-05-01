@@ -16,7 +16,7 @@ export enum JOB_STATUS {
 @Schema()
 export class JobChangelog {
   @Prop({ required: true })
-  userId: mongoose.Types.ObjectId;
+  userId: string;
   @Prop({ required: true })
   jobId: mongoose.Types.ObjectId;
   @Prop({ required: true })

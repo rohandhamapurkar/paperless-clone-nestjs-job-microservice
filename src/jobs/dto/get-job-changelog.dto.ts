@@ -10,7 +10,6 @@ export class GetJobsChangelogDto {
   @IsDefined()
   jobId: string;
 
-  @IsObjectId()
   @IsString()
   @IsDefined()
   userId: string;

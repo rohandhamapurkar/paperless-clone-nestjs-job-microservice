@@ -7,7 +7,6 @@ import { DataConfigType } from '../entities/job.entity';
  * Dto for job definition validation
  */
 export class CreateJobDto {
-  @IsObjectId()
   @IsString()
   @IsDefined()
   userId: string;

@@ -41,7 +41,7 @@ export class JobsService {
    */
   async findAll({ pageNo = 0, limit = 10, userId }: GetJobsDto) {
     return this.jobRepository.find(
-      { userId: new mongoose.Types.ObjectId(userId) },
+      { userId: userId },
       { dataConfig: 0, templateId: 0 },
       { skip: pageNo * limit, limit },
     );
@@ -54,7 +54,7 @@ export class JobsService {
     return this.jobChangelogRepository.find(
       {
         jobId: new mongoose.Types.ObjectId(jobId),
-        userId: new mongoose.Types.ObjectId(userId),
+        userId: userId,
       },
       {},
       { sort: { createdOn: -1 } },
@@ -67,7 +67,7 @@ export class JobsService {
   async assertJob(data: CreateJobDto) {
     try {
       const doc = new this.jobRepository({
-        userId: new mongoose.Types.ObjectId(data.userId),
+        userId: data.userId,
         templateId: new mongoose.Types.ObjectId(data.templateId),
         uuid: data.uuid,
         dataConfig: data.dataConfig,
@@ -100,7 +100,7 @@ export class JobsService {
     status,
     message,
   }: {
-    userId: mongoose.Types.ObjectId;
+    userId: string;
     jobId: mongoose.Types.ObjectId;
     message: string;
     status: JOB_STATUS;

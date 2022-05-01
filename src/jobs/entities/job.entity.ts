@@ -46,7 +46,7 @@ export class DataConfigType {
 @Schema()
 export class Job {
   @Prop({ required: true })
-  userId: mongoose.Types.ObjectId;
+  userId: string;
   @Prop({ required: true })
   uuid: string;
   @Prop({ required: true })
