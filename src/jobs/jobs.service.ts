@@ -39,11 +39,11 @@ export class JobsService {
   /**
    * Gets all jobs for a user from db
    */
-  async findAll({ pageNo = 0, limit = 10, userId }: GetJobsDto) {
+  async findAll({ pageNo, pageSize, userId }: GetJobsDto) {
     return this.jobRepository.find(
       { userId: userId },
       { dataConfig: 0, templateId: 0 },
-      { skip: pageNo * limit, limit },
+      { skip: +pageNo * +pageSize, limit: +pageSize },
     );
   }
 
@@ -233,6 +233,8 @@ export class JobsService {
       const template = await this.paperlessDbConnection
         .collection(TEMPLATES_COLLECTION_NAME)
         .findOne({ _id: job.templateId });
+
+      if (!template) throw new Error('No such template found');
       const templateUrl: string = template.imageUrl;
 
       // parse data config from UI

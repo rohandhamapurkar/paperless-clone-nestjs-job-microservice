@@ -1,14 +1,21 @@
-import { IsNumber, IsString, IsDefined } from 'class-validator';
+import {
+  IsString,
+  IsDefined,
+  IsOptional,
+  IsNumberString,
+} from 'class-validator';
 
 /**
  * jobs service endpoint params validation
  */
 export class GetJobsDto {
-  @IsNumber()
-  pageNo: number;
+  @IsOptional()
+  @IsNumberString()
+  pageNo = '0';
 
-  @IsNumber()
-  limit: number;
+  @IsOptional()
+  @IsNumberString()
+  pageSize = '10';
 
   @IsString()
   @IsDefined()
