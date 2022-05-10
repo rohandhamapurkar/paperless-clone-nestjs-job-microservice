@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -32,7 +33,9 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  app.listen(configService.get<string>('PORT'));
+  app.listen(configService.get<string>('PORT'), function () {
+    Logger.log('Running on port: ' + configService.get<string>('PORT'));
+  });
   appContext.close();
 }
 bootstrap();
