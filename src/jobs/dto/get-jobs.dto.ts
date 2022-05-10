@@ -11,7 +11,7 @@ import {
 export class GetJobsDto {
   @IsOptional()
   @IsNumberString()
-  pageNo = '0';
+  pageNo = '1';
 
   @IsOptional()
   @IsNumberString()

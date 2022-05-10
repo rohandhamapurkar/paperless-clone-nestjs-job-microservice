@@ -40,11 +40,22 @@ export class JobsService {
    * Gets all jobs for a user from db
    */
   async findAll({ pageNo, pageSize, userId }: GetJobsDto) {
-    return this.jobRepository.find(
+    const jobs = await this.jobRepository.find(
       { userId: userId },
       { dataConfig: 0, templateId: 0 },
-      { skip: +pageNo * +pageSize, limit: +pageSize },
+      {
+        skip: (+pageNo - 1) * +pageSize,
+        limit: +pageSize,
+        sort: { createdOn: -1 },
+      },
     );
+
+    const count = await this.jobRepository.countDocuments({ userId });
+    return {
+      data: jobs,
+      fetchCount: count,
+      totalCount: count,
+    };
   }
 
   /**
