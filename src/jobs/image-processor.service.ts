@@ -3,7 +3,7 @@ import { fabric } from 'fabric';
 import { createWriteStream } from 'fs';
 import { v4 } from 'uuid';
 import { DATA_CONFIG_TYPES } from './constants';
-import { DataConfigType } from './entities/job.entity';
+import { DataConfigType, FabricObjectStyle } from './entities/job.entity';
 const logger = new Logger('ImageProcessorService');
 @Injectable()
 export class ImageProcessorService {
@@ -30,6 +30,23 @@ export class ImageProcessorService {
         reject(err);
       }
     });
+  }
+
+  transformFabricTextOptions(config: FabricObjectStyle): fabric.TextOptions {
+    return {
+      originX: config.originX || 'left',
+      originY: config.originY || 'top',
+      height: config.height,
+      fill: config.color,
+      backgroundColor: config.backgroundColor,
+      fontFamily: config.fontFamily,
+      fontWeight: config.fontWeight,
+      fontSize: config.fontSize,
+      underline: config.underline,
+      linethrough: config.strikeThrough,
+      textAlign: config.horizontalAlignment,
+      fontStyle: config.fontStyle,
+    };
   }
 
   /**
@@ -61,16 +78,24 @@ export class ImageProcessorService {
       for (const config of staticConfig) {
         switch (config.type) {
           case DATA_CONFIG_TYPES.STATIC_TEXT: {
-            logger.log('info', 'Adding text.... ', config.text);
+            logger.log('info', 'Adding text.... ', config.text, {
+              ...config.position,
+              ...(config.style !== undefined &&
+                this.transformFabricTextOptions(config.style)),
+              scaleX: 1,
+              scaleY: 1,
+            });
+
             canvas
               .add(
                 new fabric.Text(config.text, {
-                  left: config.position.left,
-                  top: config.position.top,
-                  ...config.style,
+                  ...config.position,
+                  ...(config.style !== undefined &&
+                    this.transformFabricTextOptions(config.style)),
                 }),
               )
               .renderAll();
+            logger.debug(canvas);
           }
           case DATA_CONFIG_TYPES.IMAGE: {
             logger.log('info', 'Adding image....');
@@ -127,7 +152,8 @@ export class ImageProcessorService {
         .add(
           new fabric.Text(datasetObj[config.dataField], {
             ...config.position,
-            ...config.style,
+            ...(config.style !== undefined &&
+              this.transformFabricTextOptions(config.style)),
           }),
         )
         .renderAll();
