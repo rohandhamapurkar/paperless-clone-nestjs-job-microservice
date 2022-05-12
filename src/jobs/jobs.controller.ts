@@ -1,4 +1,10 @@
-import { Controller, Logger, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Logger,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
@@ -17,6 +23,11 @@ const logger = new Logger('JobsController');
 @Controller('jobs')
 export class JobsController {
   constructor(private readonly jobService: JobsService) {}
+
+  @Get()
+  helloWorld() {
+    return 'Hello World!';
+  }
 
   /**
    * Service endpoint to process job
