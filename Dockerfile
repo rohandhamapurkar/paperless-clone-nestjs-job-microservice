@@ -6,4 +6,4 @@ COPY . .
 
 RUN npm install --save-prod
 
-CMD node dist/main
+CMD npm run start:prod

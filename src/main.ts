@@ -14,7 +14,8 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: {
-      port: +configService.get<string>('PORT'),
+      port: +configService.get<string>('MICROSERVICE_TCP_PORT'),
+      host: '0.0.0.0',
     },
   });
 
@@ -33,9 +34,10 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  app.listen(configService.get<string>('PORT'), function () {
-    Logger.log('Running on port: ' + configService.get<string>('PORT'));
-  });
+  await app.listen(+configService.get<string>('HTTP_PORT'));
+  Logger.debug(
+    'TCP transport running on port: ' + configService.get<string>('HTTP_PORT'),
+  );
   appContext.close();
 }
 bootstrap();
