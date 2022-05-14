@@ -5,7 +5,7 @@ import { JobsModule } from './jobs/jobs.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath: '.env' }),
+    ConfigModule.forRoot({ envFilePath: 'paperless-job-microservice.env' }),
 
     MongooseModule.forRootAsync({
       connectionName: 'paperless-db',
