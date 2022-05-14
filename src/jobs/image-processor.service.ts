@@ -53,7 +53,7 @@ export class ImageProcessorService {
    * Returns fabric.js canvas instance for input template image url
    */
   async addTemplateImage(templateUrl: string): Promise<fabric.StaticCanvas> {
-    const canvas = new fabric.StaticCanvas(null);
+    const canvas = new fabric.Canvas(null);
     const image = await this.readImage({
       url: templateUrl,
     });
