@@ -1,6 +1,7 @@
 node_modules/
 tmp/
-src/
 test/
 README.md
 *.env*
+.aws/
+.github/

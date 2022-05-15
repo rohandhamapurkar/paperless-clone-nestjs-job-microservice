@@ -12,4 +12,6 @@ COPY . .
 
 RUN npm install --save-prod
 
+RUN npm run build
+
 CMD npm run start:prod
