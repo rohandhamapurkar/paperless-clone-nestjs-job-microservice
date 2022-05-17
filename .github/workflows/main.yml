@@ -13,8 +13,8 @@ on:
 env:
   AWS_REGION: us-east-2 # preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: public.ecr.aws/v6v6m1q7 # Amazon ECR repository name
-  ECS_SERVICE: plc-job-service # Amazon ECS service name
-  ECS_CLUSTER: plc-cluster # Amazon ECS cluster name
+  ECS_SERVICE: paperless-clone-job-service # Amazon ECS service name
+  ECS_CLUSTER: paperless-clone-cluster # Amazon ECS cluster name
   ECS_TASK_DEFINITION: .aws/task-definition.json # Amazon ECS task definition
   CONTAINER_NAME: paperless-job-microservice # name of the container
 
