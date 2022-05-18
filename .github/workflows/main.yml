@@ -38,22 +38,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
-          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
-          docker buildx build -t ${{ secrets.ECR_REPOSITORY }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest -o type=registry .
-          echo "::set-output name=image::${{ secrets.ECR_REPOSITORY }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest"
+      # - name: Build, tag, and push image to Amazon ECR
+      #   id: build-image
+      #   run: |
+      #     # Build a docker container and
+      #     # push it to ECR so that it can
+      #     # be deployed to ECS.
+      #     aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
+      #     docker buildx build -t ${{ secrets.ECR_REPOSITORY }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest -o type=registry .
+      #     echo "::set-output name=image::${{ secrets.ECR_REPOSITORY }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest"
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: .aws/task-definition.json
           container-name: ${{ secrets.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
+          # image: ${{ steps.build-image.outputs.image }}
+          image: ${{ secrets.ECR_REPOSITORY }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
