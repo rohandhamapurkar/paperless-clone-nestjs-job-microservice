@@ -47,15 +47,11 @@ jobs:
           aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
           docker buildx build -t ${{ secrets.ECR_REPOSITORY }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest -o type=registry .
           echo "::set-output name=image::${{ secrets.ECR_REPOSITORY }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest"
-      - run: 'echo "$ECS_TASK_DEFINITION" > task-definition.json'
-        shell: bash
-        env:
-          SSH_KEY: ${{secrets.ECS_TASK_DEFINITION}}
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition.json
+          task-definition: .aws/task-definition.json
           container-name: ${{ secrets.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
