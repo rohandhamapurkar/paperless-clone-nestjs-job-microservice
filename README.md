@@ -15,8 +15,6 @@ Consists of 2 main services api service and job service, api service also serves
 
 The below is the system srchitecture when deployed on AWS.
 
-Access the demo at <a href="https://paperless.orderstack.co.in" target="_blank">https://paperless.orderstack.co.in</a>
-
 <img src="paperless-sys-arch.drawio.svg"/>
 
 ## Installation
