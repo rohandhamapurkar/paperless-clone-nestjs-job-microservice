@@ -14,8 +14,6 @@ import {
 } from '@nestjs/microservices';
 import { JOB_RETRY_LIMIT, JOB_SERVICE_MESSAGE_PATTERNS } from './constants';
 import { CreateJobDto } from './dto/create-job.dto';
-import { GetJobsChangelogDto } from './dto/get-job-changelog.dto';
-import { GetJobsDto } from './dto/get-jobs.dto';
 import { JobsService } from './jobs.service';
 const logger = new Logger('JobsController');
 
@@ -49,21 +47,5 @@ export class JobsController {
       logger.error(err);
       channel.nack(message, false);
     }
-  }
-
-  /**
-   * Service endpoint to get all user jobs
-   */
-  @MessagePattern(JOB_SERVICE_MESSAGE_PATTERNS.GET_JOBS, Transport.TCP)
-  async getJobs(data: GetJobsDto) {
-    return await this.jobService.findAll(data);
-  }
-
-  /**
-   * Service endpoint to get changelog for a user job
-   */
-  @MessagePattern(JOB_SERVICE_MESSAGE_PATTERNS.GET_JOB_CHANGELOG, Transport.TCP)
-  async getJobChangelog(data: GetJobsChangelogDto) {
-    return await this.jobService.getChangelog(data);
   }
 }

@@ -11,8 +11,6 @@ import { v4 } from 'uuid';
 import { ArchiveHelperService } from './archive-helper.service';
 import { DATA_CONFIG_TYPES, TEMPLATES_COLLECTION_NAME } from './constants';
 import { CreateJobDto } from './dto/create-job.dto';
-import { GetJobsChangelogDto } from './dto/get-job-changelog.dto';
-import { GetJobsDto } from './dto/get-jobs.dto';
 import { JobChangelog, JOB_STATUS } from './entities/job-changelog.entity';
 import { DataConfigType, Job } from './entities/job.entity';
 import { ImageProcessorService } from './image-processor.service';
@@ -35,42 +33,6 @@ export class JobsService {
     private readonly archiveService: ArchiveHelperService,
     private readonly googleService: GoogleService,
   ) {}
-
-  /**
-   * Gets all jobs for a user from db
-   */
-  async findAll({ pageNo, pageSize, userId }: GetJobsDto) {
-    const jobs = await this.jobRepository.find(
-      { userId: userId },
-      { dataConfig: 0, templateId: 0 },
-      {
-        skip: (+pageNo - 1) * +pageSize,
-        limit: +pageSize,
-        sort: { createdOn: -1 },
-      },
-    );
-
-    const count = await this.jobRepository.countDocuments({ userId });
-    return {
-      data: jobs,
-      fetchCount: count,
-      totalCount: count,
-    };
-  }
-
-  /**
-   * Gets all changelog rows for a user job
-   */
-  async getChangelog({ jobId, userId }: GetJobsChangelogDto) {
-    return this.jobChangelogRepository.find(
-      {
-        jobId: new mongoose.Types.ObjectId(jobId),
-        userId: userId,
-      },
-      {},
-      { sort: { createdOn: -1 } },
-    );
-  }
 
   /**
    * Asserts and returns the user job document in the jobs collection
