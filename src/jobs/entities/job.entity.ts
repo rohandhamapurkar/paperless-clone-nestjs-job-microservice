@@ -53,6 +53,8 @@ export class Job {
   @Prop({ required: true })
   userId: string;
   @Prop({ required: true })
+  receiptHandle: string;
+  @Prop({ required: true })
   uuid: string;
   @Prop({ required: true })
   retryCount: number;

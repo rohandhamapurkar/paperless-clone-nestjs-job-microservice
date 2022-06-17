@@ -1,4 +1,5 @@
-FROM --platform=linux/arm64 node:14
+# FROM --platform=linux/arm64 node:14
+FROM node:14
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -15,3 +16,7 @@ RUN npm install --save-prod
 RUN npm run build
 
 CMD npm run start:prod
+
+# heroku container:login
+# heroku container:push worker --app paperless-clone
+# heroku container:release worker --app paperless-clone

@@ -6,11 +6,11 @@ import {
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { existsSync, mkdirSync, rm, unlinkSync } from 'fs';
 import mongoose from 'mongoose';
+import { Message } from '@aws-sdk/client-sqs';
 import { GoogleService } from 'src/google/google.service';
 import { v4 } from 'uuid';
 import { ArchiveHelperService } from './archive-helper.service';
 import { DATA_CONFIG_TYPES, TEMPLATES_COLLECTION_NAME } from './constants';
-import { CreateJobDto } from './dto/create-job.dto';
 import { JobChangelog, JOB_STATUS } from './entities/job-changelog.entity';
 import { DataConfigType, Job } from './entities/job.entity';
 import { ImageProcessorService } from './image-processor.service';
@@ -37,13 +37,17 @@ export class JobsService {
   /**
    * Asserts and returns the user job document in the jobs collection
    */
-  async assertJob(data: CreateJobDto) {
+  async assertJob(data: { event: Message; parsedEventBody: any }) {
     try {
       const doc = new this.jobRepository({
-        userId: data.userId,
-        templateId: new mongoose.Types.ObjectId(data.templateId),
-        uuid: data.uuid,
-        dataConfig: data.dataConfig,
+        // _id: data.event.MessageId,
+        userId: data.parsedEventBody.userId,
+        templateId: new mongoose.Types.ObjectId(
+          data.parsedEventBody.templateId,
+        ),
+        uuid: data.event.MessageId,
+        receiptHandle: data.event.ReceiptHandle,
+        dataConfig: data.parsedEventBody.dataConfig,
         retryCount: 0,
         createdOn: new Date(),
       });
@@ -57,7 +61,11 @@ export class JobsService {
       return job;
     } catch (err) {
       if (err.code === 11000) {
-        return await this.jobRepository.findOne({ uuid: data.uuid });
+        await this.jobRepository.updateOne(
+          { uuid: data.event.MessageId },
+          { $set: { receiptHandle: data.event.ReceiptHandle } },
+        );
+        return await this.jobRepository.findOne({ uuid: data.event.MessageId });
       } else {
         throw new ServiceUnavailableException(err);
       }
