@@ -13,9 +13,9 @@ This is the repository for the paperless job service which is part of the paperl
 
 Consists of 2 main services api service and job service, api service also serves the user dashboard where all templates and datasets can be uploaded and the job service processes these templates and datasets together to generate data interpolated teplate images for the user.
 
-The below is the system srchitecture when deployed on AWS.
+Access the demo at <a href="https://paperless-clone.herokuapp.com/#/" target="_blank">https://paperless-clone.herokuapp.com/#/</a>
 
-<img src="paperless-sys-arch.drawio.svg"/>
+The below is the system srchitecture when deployed on Heroku.
 
 ## Installation
 
