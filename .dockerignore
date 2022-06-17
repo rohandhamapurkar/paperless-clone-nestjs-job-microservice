@@ -5,3 +5,4 @@ README.md
 *.env*
 .aws/
 .github/
+heroku-deploy.sh
