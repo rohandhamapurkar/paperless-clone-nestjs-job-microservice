@@ -25,9 +25,9 @@ export class JobsController {
       deleteEvent: (messageReceiptHandle: string) => void;
     };
   }) {
-    const job = await this.jobService.assertJob({
-      event,
-      parsedEventBody,
+    const job = await this.jobService.getJob({
+      jobId: parsedEventBody.jobId,
+      eventReceiptHandle: event.ReceiptHandle,
     });
     try {
       if (job.retryCount >= JOB_RETRY_LIMIT) {

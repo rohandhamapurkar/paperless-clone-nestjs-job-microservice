@@ -103,7 +103,7 @@ export class ImageProcessorService {
               url: config.url,
               setObj: config.position,
             });
-            canvas.add(img.scale(config.scale)).renderAll();
+            canvas.add(img.set(config.attributes)).renderAll();
           }
         }
       }

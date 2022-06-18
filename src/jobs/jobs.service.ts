@@ -6,7 +6,6 @@ import {
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { existsSync, mkdirSync, rm, unlinkSync } from 'fs';
 import mongoose from 'mongoose';
-import { Message } from '@aws-sdk/client-sqs';
 import { GoogleService } from 'src/google/google.service';
 import { v4 } from 'uuid';
 import { ArchiveHelperService } from './archive-helper.service';
@@ -37,38 +36,23 @@ export class JobsService {
   /**
    * Asserts and returns the user job document in the jobs collection
    */
-  async assertJob(data: { event: Message; parsedEventBody: any }) {
+  async getJob({
+    jobId,
+    eventReceiptHandle,
+  }: {
+    jobId: string;
+    eventReceiptHandle: string;
+  }) {
     try {
-      const doc = new this.jobRepository({
-        // _id: data.event.MessageId,
-        userId: data.parsedEventBody.userId,
-        templateId: new mongoose.Types.ObjectId(
-          data.parsedEventBody.templateId,
-        ),
-        uuid: data.event.MessageId,
-        receiptHandle: data.event.ReceiptHandle,
-        dataConfig: data.parsedEventBody.dataConfig,
-        retryCount: 0,
-        createdOn: new Date(),
+      await this.jobRepository.updateOne(
+        { _id: new mongoose.Types.ObjectId(jobId) },
+        { $set: { receiptHandle: eventReceiptHandle } },
+      );
+      return await this.jobRepository.findOne({
+        _id: new mongoose.Types.ObjectId(jobId),
       });
-      const job = await doc.save();
-      await this.recordJobChangelog({
-        userId: job.userId,
-        jobId: job._id,
-        status: JOB_STATUS.ASSERTING_JOB,
-        message: 'Job entry created in the database',
-      });
-      return job;
     } catch (err) {
-      if (err.code === 11000) {
-        await this.jobRepository.updateOne(
-          { uuid: data.event.MessageId },
-          { $set: { receiptHandle: data.event.ReceiptHandle } },
-        );
-        return await this.jobRepository.findOne({ uuid: data.event.MessageId });
-      } else {
-        throw new ServiceUnavailableException(err);
-      }
+      throw new ServiceUnavailableException(err);
     }
   }
 
